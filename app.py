@@ -150,6 +150,15 @@ def serve_logo512():
         return jsonify({"error": "logo512.png not found"}), 404
 
 
+@app.route("/favicon.ico", methods=["GET"])
+def serve_favicon():
+    """Serve favicon.ico from the React build root if present."""
+    try:
+        return send_from_directory(FRONTEND_BUILD_DIR, "favicon.ico")
+    except FileNotFoundError:
+        return jsonify({"error": "favicon.ico not found"}), 404
+
+
 # -------------------------
 # API Routes
 # -------------------------
