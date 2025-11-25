@@ -1,10 +1,13 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import pandas as pd
 import joblib
 import os
 
-app = Flask(__name__)
+FRONTEND_BUILD_DIR = os.path.join(os.path.dirname(__file__), "waste-predictor", "build")
+
+# Disable Flask's default static folder so our custom /static route serves the React build assets
+app = Flask(__name__, static_folder=None)
 CORS(app)
 
     
@@ -93,9 +96,62 @@ def predict_segregation(input_data, model_name='XGBoost'):
         traceback.print_exc()
         # Fallback: Return 70% of covered households if prediction fails
         return float(input_data.get('Covered_Households', 0)) * 0.7
-        
+
+
 # -------------------------
-# Routes
+# Frontend routes (React build)
+# -------------------------
+@app.route("/", methods=["GET"])
+def serve_frontend_index():
+    """Serve the built React frontend (waste-predictor)."""
+    try:
+        return send_from_directory(FRONTEND_BUILD_DIR, "index.html")
+    except FileNotFoundError:
+        return jsonify({
+            "error": "Frontend build not found",
+            "details": "Run 'npm install' and 'npm run build' inside the waste-predictor folder, then redeploy."
+        }), 500
+
+
+@app.route("/static/<path:path>")
+def serve_frontend_static(path):
+    """Serve static assets from the React build folder."""
+    static_dir = os.path.join(FRONTEND_BUILD_DIR, "static")
+    try:
+        return send_from_directory(static_dir, path)
+    except FileNotFoundError:
+        return jsonify({"error": "Static asset not found", "path": path}), 404
+
+
+@app.route("/manifest.json", methods=["GET"])
+def serve_manifest():
+    """Serve CRA manifest.json from the React build root if present."""
+    try:
+        return send_from_directory(FRONTEND_BUILD_DIR, "manifest.json")
+    except FileNotFoundError:
+        return jsonify({"error": "manifest.json not found"}), 404
+
+
+@app.route("/logo192.png", methods=["GET"])
+def serve_logo192():
+    """Serve CRA logo192.png from the React build root if present."""
+    try:
+        return send_from_directory(FRONTEND_BUILD_DIR, "logo192.png")
+    except FileNotFoundError:
+        return jsonify({"error": "logo192.png not found"}), 404
+
+
+@app.route("/logo512.png", methods=["GET"])
+def serve_logo512():
+    """Serve CRA logo512.png from the React build root if present."""
+    try:
+        return send_from_directory(FRONTEND_BUILD_DIR, "logo512.png")
+    except FileNotFoundError:
+        return jsonify({"error": "logo512.png not found"}), 404
+
+
+# -------------------------
+# API Routes
 # -------------------------
 @app.route("/predict", methods=["POST"])
 def predict_route():

@@ -11,15 +11,19 @@ import {
 } from "recharts";
 
 // Determine API base URL so it works both locally and when deployed.
-// - In development, if REACT_APP_API_BASE_URL is not set, default to http://localhost:5000
-// - In production (Vercel), calls will go to the same origin ("" base URL)
+// - When running with React dev server (port 3000), talk to Flask on http://127.0.0.1:5000
+// - When served through Flask itself (port 5000, including Vercel), always use same-origin calls ("" base URL)
+//   so requests hit the same host that served index.html.
 const getApiBaseUrl = () => {
-  // For development - always use localhost:5000
-  if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+  const { port } = window.location;
+
+  // React dev server
+  if (process.env.NODE_ENV === 'development' || port === '3000') {
     return "http://127.0.0.1:5000";
   }
-  // For production or if REACT_APP_API_BASE_URL is set
-  return process.env.REACT_APP_API_BASE_URL || "";
+
+  // Served by Flask (local run or Vercel): use same origin
+  return "";
 };
 
 const API_BASE_URL = getApiBaseUrl();

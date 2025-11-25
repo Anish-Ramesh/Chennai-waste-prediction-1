@@ -1,0 +1,23 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv
+.env
+*.sqlite3
+*.db
+.DS_Store
+
+# Node / React dev artifacts
+waste-predictor/node_modules/
+waste-predictor/.env
+waste-predictor/.env.local
+waste-predictor/.env.development.local
+waste-predictor/.env.test.local
+waste-predictor/.env.production.local
