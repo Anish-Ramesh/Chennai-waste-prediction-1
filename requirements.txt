@@ -4,7 +4,4 @@ flask-cors==4.0.0
 pandas>=2.0.3
 
 # ML and utility dependencies for saved models
-numpy>=1.25.0
-scikit-learn>=1.3.0
 joblib>=1.3.0
-xgboost>=2.0.0
